@@ -47,23 +47,21 @@
 
     <script>
         async function carregarTransacoes() {
-            const urlBlockchain = "https://blockchain.info/latestblock";
+            const proxyUrl = "https://corsproxy.io/?";
+            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
+            const urlBaseBloco = "https://blockstream.info/api/block/";
 
             try {
-                // Obtém informações do último bloco
-                const responseBloco = await fetch(urlBlockchain);
-                const dadosBloco = await responseBloco.json();
+                // Obtém o hash do último bloco com proxy
+                const responseBloco = await fetch(proxyUrl + urlUltimoBloco);
+                const hashBloco = await responseBloco.text();
 
-                // Obtém o hash do último bloco
-                const hashBloco = dadosBloco.hash;
-                const urlTransacoes = `https://blockchain.info/rawblock/${hashBloco}`;
+                // Obtém detalhes do bloco
+                const responseDadosBloco = await fetch(proxyUrl + urlBaseBloco + hashBloco);
+                const dadosBloco = await responseDadosBloco.json();
 
-                // Obtém detalhes das transações do bloco
-                const responseDadosBloco = await fetch(urlTransacoes);
-                const dadosTransacoes = await responseDadosBloco.json();
-
-                // Obtém as primeiras 10 transações
-                const transacoes = dadosTransacoes.tx.slice(0, 10);
+                // Obtém as 10 primeiras transações do bloco
+                const transacoes = dadosBloco.tx.slice(0, 10);
 
                 // Exibe as transações na página
                 const divTransacoes = document.getElementById("transacoes");
@@ -73,10 +71,10 @@
                     const divTx = document.createElement("div");
                     divTx.classList.add("transacao");
                     divTx.innerHTML = `
-                        <p><strong>Hash:</strong> ${tx.hash}</p>
+                        <p><strong>Hash:</strong> ${tx.txid}</p>
                         <p><strong>Tamanho:</strong> ${tx.size} bytes</p>
-                        <p><strong>Entradas:</strong> ${tx.inputs.length}</p>
-                        <p><strong>Saídas:</strong> ${tx.out.length}</p>
+                        <p><strong>Entradas:</strong> ${tx.vin.length}</p>
+                        <p><strong>Saídas:</strong> ${tx.vout.length}</p>
                     `;
                     divTransacoes.appendChild(divTx);
                 });
