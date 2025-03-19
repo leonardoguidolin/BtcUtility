@@ -47,21 +47,22 @@
 
     <script>
         async function carregarTransacoes() {
-            const proxyUrl = "https://corsproxy.io/?";
+            const proxyUrl = "https://api.allorigins.win/get?url=";
             const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
             const urlBaseBloco = "https://blockstream.info/api/block/";
 
             try {
                 // Obtém o hash do último bloco com proxy
-                const responseBloco = await fetch(proxyUrl + urlUltimoBloco);
-                const hashBloco = await responseBloco.text();
+                const responseBloco = await fetch(proxyUrl + encodeURIComponent(urlUltimoBloco));
+                const dataBloco = await responseBloco.json();
+                const hashBloco = dataBloco.contents;
 
                 // Obtém detalhes do bloco
-                const responseDadosBloco = await fetch(proxyUrl + urlBaseBloco + hashBloco);
+                const responseDadosBloco = await fetch(proxyUrl + encodeURIComponent(urlBaseBloco + hashBloco));
                 const dadosBloco = await responseDadosBloco.json();
 
                 // Obtém as 10 primeiras transações do bloco
-                const transacoes = dadosBloco.tx.slice(0, 10);
+                const transacoes = dadosBloco.contents.tx.slice(0, 10);
 
                 // Exibe as transações na página
                 const divTransacoes = document.getElementById("transacoes");
