@@ -50,6 +50,7 @@
             const proxyUrl = "https://api.allorigins.win/get?url=";
             const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
             const urlBaseBloco = "https://blockstream.info/api/block/";
+            const urlTransacoes = "https://blockstream.info/api/block/";
 
             try {
                 // Obtém o hash do último bloco com proxy
@@ -63,24 +64,17 @@
 
                 const hashBloco = dataBloco.contents;
 
-                // Obtém detalhes do bloco
-                const responseDadosBloco = await fetch(proxyUrl + encodeURIComponent(urlBaseBloco + hashBloco));
-                const dadosBloco = await responseDadosBloco.json();
+                // Obtém as transações associadas ao bloco
+                const responseTransacoes = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco + "/txs"));
+                const dadosTransacoes = await responseTransacoes.json();
 
-                // Verifica se as transações estão presentes
-                if (!dadosBloco.contents) {
-                    throw new Error("Erro: dados do bloco não encontrados.");
+                // Verifica se obteve transações
+                if (!dadosTransacoes.contents || !Array.isArray(dadosTransacoes.contents)) {
+                    throw new Error("Erro ao obter transações do bloco.");
                 }
 
-                console.log("Dados do bloco:", dadosBloco.contents); // Diagnóstico
-
-                // Se as transações não existirem ou estiverem em formato diferente
-                if (!dadosBloco.contents.tx || !Array.isArray(dadosBloco.contents.tx)) {
-                    throw new Error("Erro: transações não encontradas ou no formato esperado.");
-                }
-
-                // Obtém as 10 primeiras transações do bloco
-                const transacoes = dadosBloco.contents.tx.slice(0, 10);
+                // Obtém as 10 primeiras transações
+                const transacoes = dadosTransacoes.contents.slice(0, 10);
 
                 // Exibe as transações na página
                 const divTransacoes = document.getElementById("transacoes");
