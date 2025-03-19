@@ -70,7 +70,7 @@
                     throw new Error("Erro: transações não encontradas no bloco.");
                 }
 
-                const divTransacoes = document.getElementById("transacoes");
+                const divTransacoes = document.getElementById("contents");
                 divTransacoes.innerHTML = `<h2>Bloco ID: ${dadosBloco.contents.id}</h2>`;
                 divTransacoes.innerHTML += `<p><strong>Altura:</strong> ${dadosBloco.contents.height}</p>`;
                 divTransacoes.innerHTML += `<p><strong>Contagem de transações:</strong> ${dadosBloco.contents.tx_count}</p>`;
