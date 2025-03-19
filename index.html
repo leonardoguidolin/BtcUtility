@@ -67,10 +67,10 @@
                 const responseTransacoes = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco + "/txs"));
                 const dadosTransacoes = await responseTransacoes.json();
 
-                // Depuração: Exibe a resposta completa da API
+                // Mostra todos os dados recebidos da API para depuração
                 console.log("Dados das transações:", dadosTransacoes.contents); // Exibe o conteúdo de transações
 
-                // Verifica se obteve transações e se o formato é um array
+                // Verifica se as transações existem e se a resposta contém o formato correto
                 if (!dadosTransacoes.contents || !Array.isArray(dadosTransacoes.contents)) {
                     throw new Error("Erro ao obter transações do bloco. Formato inesperado.");
                 }
