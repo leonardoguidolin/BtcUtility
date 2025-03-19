@@ -48,46 +48,39 @@
     <script>
         async function carregarTransacoes() {
             const proxyUrl = "https://api.allorigins.win/get?url=";
-            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";  // Endpoint do hash do último bloco
-            const urlTransacoes = "https://blockstream.info/api/block/";  // Endpoint para detalhes do bloco
+            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
+            const urlTransacoes = "https://blockstream.info/api/block/";
 
             try {
-                // Obtém o hash do último bloco com proxy
                 const responseBloco = await fetch(proxyUrl + encodeURIComponent(urlUltimoBloco));
                 const dataBloco = await responseBloco.json();
 
-                // Verifica se obteve o hash do bloco
                 if (!dataBloco.contents) {
                     throw new Error("Erro ao obter o hash do último bloco.");
                 }
 
                 const hashBloco = dataBloco.contents;
 
-                // Obtém os detalhes do bloco com o hash
                 const responseDetalhesBloco = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco));
                 const dadosBloco = await responseDetalhesBloco.json();
 
-                // Mostra todos os dados recebidos da API para depuração
-                console.log("Dados do bloco:", dadosBloco.contents);  // Exibe todos os dados do bloco
+                console.log("Dados do bloco:", dadosBloco.contents);
 
-                // Verifica se as transações estão presentes
-                if (!dadosBloco.contents || !dadosBloco.contents.tx_count) {
+                if (!dadosBloco.contents || !dadosBloco.contents.tx) {
                     throw new Error("Erro: transações não encontradas no bloco.");
                 }
 
-                // Exibe as informações básicas do bloco
                 const divTransacoes = document.getElementById("transacoes");
                 divTransacoes.innerHTML = `<h2>Bloco ID: ${dadosBloco.contents.id}</h2>`;
                 divTransacoes.innerHTML += `<p><strong>Altura:</strong> ${dadosBloco.contents.height}</p>`;
                 divTransacoes.innerHTML += `<p><strong>Contagem de transações:</strong> ${dadosBloco.contents.tx_count}</p>`;
 
-                // Exibe as transações como exemplo (aqui estamos exibindo apenas 10 transações)
-                const transacoes = dadosBloco.contents.tx_count > 10 ? 10 : dadosBloco.contents.tx_count;  // Limitando a 10 transações
+                const transacoes = dadosBloco.contents.tx.length > 10 ? 10 : dadosBloco.contents.tx.length;
                 for (let i = 0; i < transacoes; i++) {
                     const divTx = document.createElement("div");
                     divTx.classList.add("transacao");
                     divTx.innerHTML = `
-                        <p><strong>Transação ${i + 1}:</strong> ${hashBloco} - tx_id: ${i}</p>
+                        <p><strong>Transação ${i + 1}:</strong> ${dadosBloco.contents.tx[i].txid}</p>
                     `;
                     divTransacoes.appendChild(divTx);
                 }
