@@ -55,11 +55,22 @@
                 // Obtém o hash do último bloco com proxy
                 const responseBloco = await fetch(proxyUrl + encodeURIComponent(urlUltimoBloco));
                 const dataBloco = await responseBloco.json();
+
+                // Verifica se obteve o hash do bloco
+                if (!dataBloco.contents) {
+                    throw new Error("Erro ao obter o hash do último bloco.");
+                }
+
                 const hashBloco = dataBloco.contents;
 
                 // Obtém detalhes do bloco
                 const responseDadosBloco = await fetch(proxyUrl + encodeURIComponent(urlBaseBloco + hashBloco));
                 const dadosBloco = await responseDadosBloco.json();
+
+                // Verifica se as transações estão presentes
+                if (!dadosBloco.contents || !dadosBloco.contents.tx) {
+                    throw new Error("Erro ao obter transações do bloco.");
+                }
 
                 // Obtém as 10 primeiras transações do bloco
                 const transacoes = dadosBloco.contents.tx.slice(0, 10);
@@ -82,7 +93,7 @@
 
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
-                alert("Erro ao carregar os dados do blockchain.");
+                alert("Erro ao carregar os dados do blockchain: " + error.message);
             }
         }
     </script>
