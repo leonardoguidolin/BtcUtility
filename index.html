@@ -66,11 +66,9 @@
 
                 console.log("Dados do bloco:", dadosBloco.contents);
 
-                if (!dadosBloco.contents || !dadosBloco.contents.tx) {
-                    throw new Error("Erro: transações não encontradas no bloco.");
-                }
+               
 
-                const divTransacoes = document.getElementById("contents");
+                const divTransacoes = dadosBloco.contents;
                 divTransacoes.innerHTML = `<h2>Bloco ID: ${dadosBloco.contents.id}</h2>`;
                 divTransacoes.innerHTML += `<p><strong>Altura:</strong> ${dadosBloco.contents.height}</p>`;
                 divTransacoes.innerHTML += `<p><strong>Contagem de transações:</strong> ${dadosBloco.contents.tx_count}</p>`;
