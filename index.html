@@ -68,8 +68,15 @@
                 const dadosBloco = await responseDadosBloco.json();
 
                 // Verifica se as transações estão presentes
-                if (!dadosBloco.contents || !dadosBloco.contents.tx) {
-                    throw new Error("Erro ao obter transações do bloco.");
+                if (!dadosBloco.contents) {
+                    throw new Error("Erro: dados do bloco não encontrados.");
+                }
+
+                console.log("Dados do bloco:", dadosBloco.contents); // Diagnóstico
+
+                // Se as transações não existirem ou estiverem em formato diferente
+                if (!dadosBloco.contents.tx || !Array.isArray(dadosBloco.contents.tx)) {
+                    throw new Error("Erro: transações não encontradas ou no formato esperado.");
                 }
 
                 // Obtém as 10 primeiras transações do bloco
