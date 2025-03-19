@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain do Bitcoin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #transacoes {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .transacao {
+            background: white;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Últimas Transações do Bitcoin</h1>
+    <button onclick="carregarTransacoes()">Atualizar</button>
+    <div id="transacoes"></div>
+
+    <script>
+        async function carregarTransacoes() {
+            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
+            const urlBaseBloco = "https://blockstream.info/api/block/";
+            
+            try {
+                // Obtém o hash do último bloco
+                const responseBloco = await fetch(urlUltimoBloco);
+                const hashBloco = await responseBloco.text();
+                
+                // Obtém detalhes do bloco
+                const responseDadosBloco = await fetch(urlBaseBloco + hashBloco);
+                const dadosBloco = await responseDadosBloco.json();
+                
+                // Obtém a lista de transações
+                const transacoes = dadosBloco.tx.slice(0, 10); // Pegamos as 10 primeiras
+
+                // Exibe as transações na página
+                const divTransacoes = document.getElementById("transacoes");
+                divTransacoes.innerHTML = ""; // Limpa antes de adicionar novas
+
+                transacoes.forEach(tx => {
+                    const divTx = document.createElement("div");
+                    divTx.classList.add("transacao");
+                    divTx.innerHTML = `
+                        <p><strong>Hash:</strong> ${tx.txid}</p>
+                        <p><strong>Tamanho:</strong> ${tx.size} bytes</p>
+                        <p><strong>Entradas:</strong> ${tx.vin.length}</p>
+                        <p><strong>Saídas:</strong> ${tx.vout.length}</p>
+                    `;
+                    divTransacoes.appendChild(divTx);
+                });
+
+            } catch (error) {
+                console.error("Erro ao buscar dados:", error);
+                alert("Erro ao carregar os dados do blockchain.");
+            }
+        }
+    </script>
+</body>
+</html>
