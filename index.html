@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain do Bitcoin</title>
+    <title>Últimas Transações do Bitcoin</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,6 +36,7 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
             width: 80%;
+            text-align: left;
         }
     </style>
 </head>
@@ -46,33 +47,36 @@
 
     <script>
         async function carregarTransacoes() {
-            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
-            const urlBaseBloco = "https://blockstream.info/api/block/";
-            
+            const urlBlockchain = "https://blockchain.info/latestblock";
+
             try {
+                // Obtém informações do último bloco
+                const responseBloco = await fetch(urlBlockchain);
+                const dadosBloco = await responseBloco.json();
+
                 // Obtém o hash do último bloco
-                const responseBloco = await fetch(urlUltimoBloco);
-                const hashBloco = await responseBloco.text();
-                
-                // Obtém detalhes do bloco
-                const responseDadosBloco = await fetch(urlBaseBloco + hashBloco);
-                const dadosBloco = await responseDadosBloco.json();
-                
-                // Obtém a lista de transações
-                const transacoes = dadosBloco.tx.slice(0, 10); // Pegamos as 10 primeiras
+                const hashBloco = dadosBloco.hash;
+                const urlTransacoes = `https://blockchain.info/rawblock/${hashBloco}`;
+
+                // Obtém detalhes das transações do bloco
+                const responseDadosBloco = await fetch(urlTransacoes);
+                const dadosTransacoes = await responseDadosBloco.json();
+
+                // Obtém as primeiras 10 transações
+                const transacoes = dadosTransacoes.tx.slice(0, 10);
 
                 // Exibe as transações na página
                 const divTransacoes = document.getElementById("transacoes");
-                divTransacoes.innerHTML = ""; // Limpa antes de adicionar novas
+                divTransacoes.innerHTML = "";
 
                 transacoes.forEach(tx => {
                     const divTx = document.createElement("div");
                     divTx.classList.add("transacao");
                     divTx.innerHTML = `
-                        <p><strong>Hash:</strong> ${tx.txid}</p>
+                        <p><strong>Hash:</strong> ${tx.hash}</p>
                         <p><strong>Tamanho:</strong> ${tx.size} bytes</p>
-                        <p><strong>Entradas:</strong> ${tx.vin.length}</p>
-                        <p><strong>Saídas:</strong> ${tx.vout.length}</p>
+                        <p><strong>Entradas:</strong> ${tx.inputs.length}</p>
+                        <p><strong>Saídas:</strong> ${tx.out.length}</p>
                     `;
                     divTransacoes.appendChild(divTx);
                 });
