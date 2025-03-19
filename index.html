@@ -49,7 +49,6 @@
         async function carregarTransacoes() {
             const proxyUrl = "https://api.allorigins.win/get?url=";
             const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
-            const urlBaseBloco = "https://blockstream.info/api/block/";
             const urlTransacoes = "https://blockstream.info/api/block/";
 
             try {
@@ -68,9 +67,12 @@
                 const responseTransacoes = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco + "/txs"));
                 const dadosTransacoes = await responseTransacoes.json();
 
-                // Verifica se obteve transações
+                // Depuração: Exibe a resposta completa da API
+                console.log("Dados das transações:", dadosTransacoes.contents); // Exibe o conteúdo de transações
+
+                // Verifica se obteve transações e se o formato é um array
                 if (!dadosTransacoes.contents || !Array.isArray(dadosTransacoes.contents)) {
-                    throw new Error("Erro ao obter transações do bloco.");
+                    throw new Error("Erro ao obter transações do bloco. Formato inesperado.");
                 }
 
                 // Obtém as 10 primeiras transações
