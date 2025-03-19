@@ -48,8 +48,8 @@
     <script>
         async function carregarTransacoes() {
             const proxyUrl = "https://api.allorigins.win/get?url=";
-            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";
-            const urlTransacoes = "https://blockstream.info/api/block/";
+            const urlUltimoBloco = "https://blockstream.info/api/blocks/tip/hash";  // Endpoint do hash do último bloco
+            const urlTransacoes = "https://blockstream.info/api/block/";  // Endpoint para detalhes do bloco
 
             try {
                 // Obtém o hash do último bloco com proxy
@@ -63,36 +63,34 @@
 
                 const hashBloco = dataBloco.contents;
 
-                // Obtém as transações associadas ao bloco
-                const responseTransacoes = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco + "/txs"));
-                const dadosTransacoes = await responseTransacoes.json();
+                // Obtém os detalhes do bloco com o hash
+                const responseDetalhesBloco = await fetch(proxyUrl + encodeURIComponent(urlTransacoes + hashBloco));
+                const dadosBloco = await responseDetalhesBloco.json();
 
                 // Mostra todos os dados recebidos da API para depuração
-                console.log("Dados das transações:", dadosTransacoes.contents); // Exibe o conteúdo de transações
+                console.log("Dados do bloco:", dadosBloco.contents);  // Exibe todos os dados do bloco
 
-                // Verifica se as transações existem e se a resposta contém o formato correto
-                if (!dadosTransacoes.contents || !Array.isArray(dadosTransacoes.contents)) {
-                    throw new Error("Erro ao obter transações do bloco. Formato inesperado.");
+                // Verifica se as transações estão presentes
+                if (!dadosBloco.contents || !dadosBloco.contents.tx_count) {
+                    throw new Error("Erro: transações não encontradas no bloco.");
                 }
 
-                // Obtém as 10 primeiras transações
-                const transacoes = dadosTransacoes.contents.slice(0, 10);
-
-                // Exibe as transações na página
+                // Exibe as informações básicas do bloco (caso necessário)
                 const divTransacoes = document.getElementById("transacoes");
-                divTransacoes.innerHTML = "";
+                divTransacoes.innerHTML = `<h2>Bloco ID: ${dadosBloco.contents.id}</h2>`;
+                divTransacoes.innerHTML += `<p><strong>Altura:</strong> ${dadosBloco.contents.height}</p>`;
+                divTransacoes.innerHTML += `<p><strong>Contagem de transações:</strong> ${dadosBloco.contents.tx_count}</p>`;
 
-                transacoes.forEach(tx => {
+                // Exibe as transações como exemplo (aqui estamos exibindo apenas 10 transações)
+                const transacoes = dadosBloco.contents.tx_count > 10 ? 10 : dadosBloco.contents.tx_count;  // Limitando a 10 transações
+                for (let i = 0; i < transacoes; i++) {
                     const divTx = document.createElement("div");
                     divTx.classList.add("transacao");
                     divTx.innerHTML = `
-                        <p><strong>Hash:</strong> ${tx.txid}</p>
-                        <p><strong>Tamanho:</strong> ${tx.size} bytes</p>
-                        <p><strong>Entradas:</strong> ${tx.vin.length}</p>
-                        <p><strong>Saídas:</strong> ${tx.vout.length}</p>
+                        <p><strong>Transação ${i + 1}:</strong> ${hashBloco} - tx_id: ${i}</p>
                     `;
                     divTransacoes.appendChild(divTx);
-                });
+                }
 
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
